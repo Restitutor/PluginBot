@@ -40,7 +40,7 @@ export default {
       fs.writeFile(filePath, JSON.stringify(data), (err) => {
         if (err) throw err;
       });
-      message.channel.send(`Resource ${id} is no longer being watched.`);
+      message.channel.send(`Resource ${id} is no longer being watched.`).catch(console.error);
       if (length == 1) {
         fs.unlinkSync(filePath);
       }
@@ -48,7 +48,7 @@ export default {
     }
     message.channel.send(
       `Error: Resource ${args[0]} was not being watched in this server`
-    );
+    ).catch(console.error);
   },
 };
 

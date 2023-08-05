@@ -11,7 +11,7 @@ export default {
   cooldown: 5,
 
   async execute(client, message, args) {
-    const m = await message.channel.send("Ping?");
+    const m = await message.channel.send("Ping?").catch(console.error);
     m.edit(
       `:ping_pong: Pong! Latency is ${
         m.createdTimestamp - message.createdTimestamp
