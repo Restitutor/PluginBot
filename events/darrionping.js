@@ -15,7 +15,7 @@ export default {
     if (message.mentions.users.has(DARRION_ID)) {
       message.channel.send(
         `<@${message.author.id}> Please do not ping Darrion.`
-      ).catch(console.error);
+      );
     }
   },
 };

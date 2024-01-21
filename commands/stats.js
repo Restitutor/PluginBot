@@ -32,7 +32,7 @@ export default {
       .setColor(message.guild.members.me.displayHexColor)
       .setTitle(`${message.guild.members.me.displayName} Statistics`)
       .addFields([
-        { name: "Version", value: `${client.package.version}`, inline: true },
+        { name: "Version", value: `${client.packageData.version}`, inline: true },
         { name: "Users", value: `${members}`, inline: true },
         {
           name: "Channels",

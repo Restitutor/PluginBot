@@ -144,7 +144,8 @@ async function checkUpdates() {
       });
       client.bot.channels.cache
         .get(watchedResource.channelID)
-        .send({ embed: updateEmbed });
+        .send({ embed: updateEmbed })
+	.catch(console.error);
 
       continue;
     }

@@ -8,7 +8,7 @@ export default {
     if (message.mentions.users.has(BOT_ID)) {
       message.channel.send(
         `<@${message.author.id}> For information, type \`p!help\``
-      ).catch(console.error);
+      );
     }
   },
 };
