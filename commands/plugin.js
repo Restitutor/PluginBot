@@ -19,22 +19,23 @@ export default {
 
   async execute(client, message, args) {
     const helpEmbed = new EmbedBuilder();
+    let resourceID = args[0];
     try {
-      var resource = await spiget.getResource(args[0]);
+      var resource = await spiget.getResource(resourceID);
     } catch (e) {
       client.logger.error(e);
-      message.reply(`uh oh ${args[0]} is not a valid resource id!`);
+      message.reply(`Uh oh! \`${resourceID}\` is not a valid resource id!`);
       return;
     }
+    let author;
     try {
-      var author = (await resource.getAuthor()).name;
+      author = await resource.getAuthor();
     } catch (e) {
       client.logger.error(e);
-      message.reply(`uh oh could not find author for ${args[0]}`);
+      message.reply(`Uh oh! I could not find the author for resource \`${resourceID}\``);
       return;
     }
 
-    var image = resource.icon.fullUrl().replace("orgdata", "org/data");
     var apiURL = `https://api.spigotmc.org/legacy/update.php?resource=${args[0]}`;
 
     request.open("GET", apiURL, true);
@@ -45,8 +46,15 @@ export default {
       if (!latestVersion) return;
       if (sent) return;
 
+      let authorID = author.id;
+      let authorName = author.name;
+      let authorURL = generateAuthorURL(authorName, authorID);
+      let authorAvatarURL = generateAvatarLink(authorID);
+      let resourceIconURL = generateResourceIconURL(resource);
+      let resourceURL = generateResourceURL(resourceID);
+
       helpEmbed
-        .setAuthor({ text: `Author: ${author}`, iconURL: image })
+        .setAuthor({ name: `Author: ${authorName}`, iconURL: authorAvatarURL, url: authorURL })
         .setColor(message.guild.members.me.displayHexColor)
         .setTitle(`${resource.name}`)
         .setDescription(`${resource.tag}`)
@@ -54,12 +62,39 @@ export default {
           { name: "Version", value: `${latestVersion}`, inline: true },
           {
             name: "Download",
-            value: `https://spigotmc.org/resources/.${args[0]}/`,
+            value: resourceURL,
             inline: true,
           },
-        ]);
+        ])
+        .setTimestamp()
+        .setThumbnail(resourceIconURL);
       sent = true;
       return message.reply({ embeds: [helpEmbed] });
     };
   },
 };
+
+
+function generateAvatarLink(authorID) {
+  const idStr = authorID.toString();
+  const length = idStr.length;
+  const splitPoint = Math.ceil(length / 2);
+  const firstHalf = idStr.substring(0, splitPoint);
+  const url = `https://www.spigotmc.org/data/avatars/l/${firstHalf}/${authorID}.jpg`;
+  return url;
+}
+
+function generateAuthorURL(authorName, authorID) {
+  const idStr = authorID.toString();
+  return `https://www.spigotmc.org/members/${authorName}.${authorID}/`;
+}
+
+function generateResourceIconURL(resource) {
+  return resource.icon.fullUrl()
+    .replace("orgdata", "org/data")
+    .replace("https://spigotmc.org", "https://www.spigotmc.org");// www must be present. Does not render in embed otherwise. Unknown cause.
+}
+
+function generateResourceURL(resourceID) {
+  return `https://spigotmc.org/resources/.${resourceID}/`;
+}

@@ -31,7 +31,7 @@ const client = {
   packageData,
 };
 
-client.logger.info("Starting up...");
+client.logger.info("PluginBot by Darrionat booting...");
 
 /**
  * Load all ".js" files in ./events and listen for emits
@@ -104,11 +104,12 @@ async function checkUpdates() {
 
       let author;
       try {
-        author = (await resource.getAuthor()).name;
+        author = await resource.getAuthor();
       } catch (e) {
         logger.error(e);
         return;
       }
+
 
       let image = resource.icon.fullUrl();
       image = image.replace("orgdata", "org/data");
@@ -123,9 +124,16 @@ async function checkUpdates() {
       let updateDesc = await getUpdateDescription(id);
       if (updateDesc.length > 1024)
         updateDesc = `Description greater than 1024 characters`;
-      // Send embed
+
+      let authorID = author.id;
+      let authorName = author.name;
+      let authorURL = generateAuthorURL(authorName, authorID);
+      let authorAvatarURL = generateAvatarLink(authorID);
+      let resourceIconURL = generateResourceIconURL(resource);
+      let resourceURL = `https://spigotmc.org/resources/.${id}/`;
+
       updateEmbed
-        .setAuthor({ name: `Author: ${author}`, iconURL: image })
+        .setAuthor({ name: `Author: ${authorName}`, iconURL: authorAvatarURL, url: authorURL })
         .setColor(channel.guild.members.me.displayHexColor)
         .setTitle(`An update for ${resource.name} is available`)
         .setDescription(`${resource.tag}`)
@@ -134,18 +142,20 @@ async function checkUpdates() {
           { name: "Update Description", value: updateDesc, inline: false },
           {
             name: "Download",
-            value: `https://spigotmc.org/resources/.${id}/`,
+            value: resourceURL,
             inline: false,
           },
-        ]);
+        ])
+        .setThumbnail(resourceIconURL)
+        .setTimestamp();
       watchedResource.lastCheckedVersion = latestVersion;
       fs.writeFile(filePath, JSON.stringify(jsonExistingData), (err) => {
         if (err) throw err;
       });
       client.bot.channels.cache
         .get(watchedResource.channelID)
-        .send({ embed: updateEmbed })
-	.catch(console.error);
+        .send({ embeds: [updateEmbed] })
+        .catch(console.error);
 
       continue;
     }
@@ -167,7 +177,7 @@ async function getResourceVersion(id) {
     false
   );
   idRequest.send();
-  while (latestVersion == null) {}
+  while (latestVersion == null) { }
   return latestVersion;
 }
 
@@ -186,7 +196,7 @@ async function getUpdateDescription(id) {
     false
   );
   updateRequest.send();
-  while (updateDesc == null) {}
+  while (updateDesc == null) { }
   return updateDesc;
 }
 
@@ -195,6 +205,26 @@ function getJSONFileData(filePath) {
     if (err) return;
     return JSON.parse(data);
   });
+}
+
+function generateAvatarLink(authorID) {
+  const idStr = authorID.toString();
+  const length = idStr.length;
+  const splitPoint = Math.ceil(length / 2);
+  const firstHalf = idStr.substring(0, splitPoint);
+  const url = `https://www.spigotmc.org/data/avatars/l/${firstHalf}/${authorID}.jpg`;
+  return url;
+}
+
+function generateAuthorURL(authorName, authorID) {
+  const idStr = authorID.toString();
+  return `https://www.spigotmc.org/members/${authorName}.${authorID}/`;
+}
+
+function generateResourceIconURL(resource) {
+  return resource.icon.fullUrl()
+    .replace("orgdata", "org/data")
+    .replace("https://spigotmc.org", "https://www.spigotmc.org");// www must be present. Does not render in embed otherwise. Unknown cause.
 }
 
 function formatText(description) {

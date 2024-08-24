@@ -17,12 +17,10 @@ export default {
     const guildID = message.guild.id;
     const filePath = `./serverdata/${guildID}.json`;
 
-    fs.access(filePath, fs.F_OK, (err) => {
-      if (err) {
-        message.reply("this server does not have any watched resources!");
-        return;
-      }
-    });
+    if (!fs.existsSync(filePath)) {
+      message.reply(`This server does not have any watched resources. Use the \`${client.config.prefix}add\` command to add watched resources.`);
+      return;
+    }
 
     const data = JSON.parse(getJSONFileData(filePath));
     var index = -1;
@@ -49,6 +47,6 @@ export default {
 function getJSONFileData(filePath) {
   return fs.readFileSync(filePath, (err, data) => {
     if (err) return;
-    return JSON.parse(data);
+    return data;
   });
 }

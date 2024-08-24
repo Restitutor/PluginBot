@@ -1,6 +1,6 @@
 import Discord from "discord.js";
 import { EmbedBuilder } from "discord.js";
-
+const darrrionID = "163454178365145088";
 export default {
   name: "help",
   description: "All the bot's commands and info on usage!",
@@ -23,11 +23,14 @@ export default {
       const displayName = me.displayName
         ? me.displayName
         : client.user.username;
+
+      let darrionUser = await client.bot.users.fetch(darrrionID);
+      var darrionAvatar = darrionUser.displayAvatarURL();
       helpEmbed
         .setAuthor({
-          name: "Author: Darrion#0001",
-          iconURL: "https://imgur.com/qxVPF9C.png",
-          url: "https://wiki.darrionatplugins.com",
+          name: "Author: @Darrionat",
+          iconURL: darrionAvatar,
+          url: "https://www.github.com/Darrionat",
         })
         .setColor(me.displayHexColor)
         .setTitle(`${displayName} Help`)

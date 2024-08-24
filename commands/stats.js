@@ -25,9 +25,9 @@ export default {
     const helpEmbed = new EmbedBuilder();
     helpEmbed
       .setAuthor({
-        name: "Author: Darrion#0001",
+        name: "Author: @Darrionat",
         iconURL: darrionAvatar,
-        url: "https://wiki.darrionatplugins.com",
+        url: "https://www.github.com/Darrionat",
       })
       .setColor(message.guild.members.me.displayHexColor)
       .setTitle(`${message.guild.members.me.displayName} Statistics`)

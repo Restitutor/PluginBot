@@ -85,7 +85,7 @@ export default {
           `${list}\n:arrow_double_down: - Downloads\n:id: - Plugin ID\n`
         )
         .setFooter({
-          text: `Use ${client.config.prefix}plugin [id] for more information on a plugin`,
+          text: `Use ${client.config.prefix}plugin command for more information on a plugin`,
         });
       list = "";
       sent = true;
