@@ -60,6 +60,7 @@ export default {
       if (!latestVersion) return;
       if (sent) return;
       sent = true;
+      var fileExists = false;
       fs.access(filePath, fs.F_OK, (err) => {
         if (err == null) {
           fileExists = true;
