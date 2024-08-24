@@ -1,56 +1,63 @@
-#dir which contains the bot directory
-basedir=$(realpath `dirname "$0"`)
+#!/usr/bin/env fish
 
-#tmux session name (`basename \"$basedir\"` -> basedir's name)
-session="`basename \"$basedir\"`"
 
-if [[ basedir != */ ]]
-then
-   basedir+="/"
-fi
+if test (count $argv) -ne 1
+    echo "Usage: $(status -f) [start|stop|restart|attach]"
+    exit 1
+end
 
-start() {
-    tmux new-session -d -s $session
-    
-    echo "Starting bot"
+# Working directory
+set basedir $(dirname (realpath (status -f )))
+cd $basedir  # Only for duration of script
+# Services or Servers
+set typedir $(basename (dirname $basedir))
+# service or servers
+set typereadable $(string sub -e -1 (string lower $typedir))
+# Name of folder
+set session $(basename $basedir)
 
-    git fetch --all
-    git reset --hard origin/master
-
-    tmux send-keys -t $session:0 "node index.js" C-m
-    
-    echo "Server started. Attaching session..."
-    
-    sleep 0.5
-    
-    tmux attach-session -t $session:0
-}
-
-stop() {
-    echo "Stopping bot..."
-    cd ~/PluginBot
-    echo "Killing tmux session"
-    tmux kill-session -t $session
-    echo "Bot stopped"
-}
-
-case "$1" in
-start)
-    start
-;;
-stop)
-    stop
-;;
-attach)
+function attach
+    echo "Attaching session $session..."
     tmux attach -t $session
-;;
-restart)
-    stop
-    echo "Restarting server..."
-    sleep 0.8
-    start
-;;
-*)
-echo "Usage: tmux.sh (start|stop|restart|attach)" >&2
-;;
-esac
+end
+
+function start
+    echo "Starting $session $typereadable"
+    tmux new-session -d -c "$basedir" -s "$session" "exec ~/sync/scripts/launchTmux.sh"
+end
+
+function stop
+    if test "$typedir" = "Servers"
+        /usr/bin/python3 /home/mcsa/curium/tools/stopServer.py "$basedir"
+        echo "Stopping server..."
+        /usr/bin/python3 /home/mcsa/curium/tools/IDLE.py "$basedir"
+    else if test -e "pid"
+        echo "Send gentle SIGINT"
+        kill -2 $(cat "pid")
+        sleep 5
+    end
+    tmux kill-session -t $session
+    echo "$session $typereadable stopped"
+end
+
+
+switch $argv[1]
+    case "sstart"
+        start
+    case "start"
+        start
+        attach
+    case "stop"
+        stop
+    case "srestart"
+	start
+	stop
+    case "restart"
+	start
+	stop
+	attach
+    case "attach"
+        attach
+    case '*'
+	echo "Unknown argument $argv[1]"
+end

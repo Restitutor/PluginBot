@@ -3,3 +3,8 @@
 config.json
 package-lock.json
 .node**
+tmux.sh
+OFFLINE
+ONLINE
+*.log
+pnpm-lock.yaml
