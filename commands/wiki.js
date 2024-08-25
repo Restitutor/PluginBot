@@ -18,7 +18,7 @@ export default {
       .setColor(message.guild.members.me.displayHexColor)
       .setTitle(`Darrionat's Plugins Wiki`)
       .setDescription(
-        `Click on this link to learn all about Darrionat's plugins (bot wiki coming soon!)`
+        `Click on this link to learn all about Darrionat's plugins and this bot!`
       );
     message.reply({ embeds: [helpEmbed] });
   },
