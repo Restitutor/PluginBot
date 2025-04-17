@@ -7,9 +7,9 @@ const spiget = new Spiget("Darrion's Plugin Bot");
 
 import { XMLHttpRequest } from "xmlhttprequest";
 
-import config from "./config.json" assert { type: "json" };
+import config from "./config.json" with { type: 'json' }
 import logger from "./util/logger.js";
-import packageData from "./package.json" assert { type: "json" };
+import packageData from "./package.json" with { type: 'json' }
 
 /**
  * Set up ALL THE THINGS
@@ -89,7 +89,14 @@ async function checkUpdates() {
     for (let watchedResource of jsonExistingData.watchedResources) {
       const updateEmbed = new EmbedBuilder();
       const id = watchedResource.resourceID;
-      const channel = client.bot.channels.cache.get(watchedResource.channelID);
+      let channel;
+      try {
+        channel = await client.bot.channels.fetch(watchedResource.channelID);
+      } catch (e) {
+        console.error(`Could not find channel ${watchedResource.channelID}`);
+        console.error(e);
+        continue
+      }
 
       let resource;
       try {

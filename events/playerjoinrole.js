@@ -10,7 +10,7 @@ export default {
     if (member.user.bot) return;
 
     let guild = client.bot.guilds.resolve(guildID);
-    var memberRole = guild.roles.cache.get(memberRoleID);
+    var memberRole = await guild.roles.fetch(memberRoleID);
     member.roles.add(memberRole);
   },
 };
